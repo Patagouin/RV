@@ -4,8 +4,6 @@
 #include "ofxCvHaarFinder.h"
 #include "ofxCvContourFinder.h"
 
-static const int NB_MAX_FACES = 2;
-
 class ofApp : public ofBaseApp{
 public:
     void setup();
@@ -21,8 +19,6 @@ public:
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
-
-//    void findRoiContainingRois();
 
 private:
     ofColor rgbToHsv(ofColor crgb);
@@ -43,17 +39,11 @@ private:
     ofColor targetColorHsv;
     ofxCvContourFinder contour;
     ofxCvBlob theBlob;
-    ofxCvBlob blob2;
-
-    ofRectangle roiColor;
-    ofRectangle roiFaces[NB_MAX_FACES];
-
-    int nbFacesInImage;
-
-    ofxCvGrayscaleImage image;
+    ofRectangle bb;
 
     ofImage glasses;
     ofImage beard;
+
 
 
     ofxCvHaarFinder haarFinder;

@@ -1,7 +1,17 @@
 #include "ofApp.h"
 
 
+//ofImage image;
+ofxCvGrayscaleImage image;
+ofRectangle roi;
+float width = -1.;
+float height = -1.;
+bool roiUpdate;
 
+ofRectangle roiInit;
+ofRectangle face;
+
+ofxCvBlob blobtest;
 //--------------------------------------------------------------
 void ofApp::setup(){
     img_width = 640/2;
@@ -19,16 +29,13 @@ void ofApp::setup(){
     image.allocate(img_width, img_height);
     haarFinder.setup("haarcascade_frontalface_alt2.xml");
 
-    nbFacesInImage = 0;
-    for (int i = 0; i < NB_MAX_FACES; ++i ){
-        roiFaces[i].setHeight(-1.);
-        roiFaces[i].setWidth(-1.);
-    }
+    roiInit = ofRectangle(0,0,img_width,img_height);
+    roi = roiInit;
+    roiUpdate=false;
+
 
     glasses.loadImage("glasses.png");
     beard.loadImage("beard.png");
-
-
 
 }
 
@@ -68,7 +75,6 @@ void ofApp::update(){
             tolerance++;
         }
 
-        // Binarize
         for (int j =0; j<img_height; ++j)
         {
             for (int i=0; i<img_width ; ++i)
@@ -88,71 +94,70 @@ void ofApp::update(){
 
         grayImg.flagImageChanged();
 
-        grayImg.erode();
-        grayImg.dilate();
-        grayImg.dilate();
-        grayImg.erode();
+        //grayImg.erode();
+        //grayImg.dilate();
+        //grayImg.dilate();
+        //grayImg.erode();
 
-        // Find blob
+
         contour.findContours(grayImg,0,img_width*img_height,1,false);
 
-        int length = 0;
+        int lenght = 0;
         for(int i = 0; i < contour.nBlobs; i++) {
-            // we keep the largest blob
+
             ofxCvBlob blob = contour.blobs.at(i);
-            if (blob.length > length)
+            if (blob.length > lenght)
             {
                 theBlob=blob;
-                length=blob.length;
+                lenght=blob.length;
             }
 
         }
 
-        roiColor=theBlob.boundingRect;
+        bb=theBlob.boundingRect;
 
 
-        // Face tracking
-        // If no faces was recognized
-        if (nbFacesInImage == 0){
+        //partie 3 - detection de visage
 
-            haarFinder.findHaarObjects(image);
-            nbFacesInImage = haarFinder.blobs.size();
-            for (int i = 0; i < haarFinder.blobs.size(); ++i){
-                roiFaces[i] = haarFinder.blobs[i].boundingRect;
-                roiFaces[i].setPosition(roiFaces[i].getX() - 1/4 * roiFaces[i].width,
-                                        roiFaces[i].getY() - 1/4 * roiFaces[i].height);
+//        if (width < 0. && height < 0. && haarFinder.blobs.size() > 0){
+//            roi = haarFinder.blobs[0].boundingRect;
+//            width = 1.5 * roi.width;
+//            height = 1.5 * roi.height;
+//            roi.setWidth(width);
+//            roi.setHeight(height);
 
-                roiFaces[i].height *= 1.5;
-                roiFaces[i].width *= 1.5;
-            }
+//        }
+//        else{
+//            ofRectangle tmp;
+//            tmp = haarFinder.blobs[0].boundingRect;
+//            roi.setPosition(tmp.getPosition());
 
-        }
-        else{
-            ofRectangle tmp;
-            std::cout << nbFacesInImage << std::endl;
-            for (int i = 0; i < NB_MAX_FACES; ++i){
-                if (roiFaces[i].getHeight() >= 0. && roiFaces[i].getHeight() >= 0.){
-                    haarFinder.findHaarObjects(image, roiFaces[i]);
-                    if (haarFinder.blobs.size() != 0){
-                        std::cout << roiFaces[i].getX() <<  "x " << roiFaces[i].getWidth() << std::endl;
-                        tmp = haarFinder.blobs[0].boundingRect;
-                        std::cout << roiFaces[i].getX() <<  "xbis " << roiFaces[i].getWidth() << std::endl << std::endl;
-                        roiFaces[i].setPosition(roiFaces[i].getX() - 1/4 * roiFaces[i].width,
-                                                roiFaces[i].getY() - 1/4 * roiFaces[i].height);
+//            haarFinder.findHaarObjects(image, roi);
+//        }
 
 
-                    }
-                    else{
-                        roiFaces[i].height = -1;
-                        roiFaces[i].width = -1;
-                        nbFacesInImage--;
-                    }
-                }
+           haarFinder.findHaarObjects(image, roi);
 
-            }
+           if(haarFinder.blobs.size() > 0)
+           {
+               ofxCvBlob blobTmp = haarFinder.blobs.at(0);
 
-        }
+               face =blobTmp.boundingRect;
+               float x = face.getX()-(face.getX())/4;
+               float y = face.getY()-(face.getY())/4;
+               float w = face.getWidth()*1.5;
+               float h = face.getHeight()*1.5;
+               roi=ofRectangle(x,y,w,h);
+               roiUpdate=true;
 
+
+           }
+           else
+               if(roiUpdate==true)
+               {
+                   roi=roiInit;
+                   roiUpdate=false;
+               }
 
 
     }
@@ -164,37 +169,34 @@ void ofApp::draw(){
     img.draw(0,0);
     grayImg.draw(img_width,0);
     img.draw(0,img_height);
-    img.draw(img_width, img_height);
+    contour.draw(0,img_height);
+
+
+    for(int i = 0; i < haarFinder.blobs.size(); i++) {
+        ofRectangle rect(haarFinder.blobs[i].boundingRect);
+        glasses.draw(rect.getX(), rect.getY(),2*rect.getWidth()/3, rect.getHeight()/2);
+        beard.draw(rect.getX(), rect.getY()+rect.getHeight()/2,2*rect.getWidth()/3, rect.getHeight()/2);
+         //ofRect( haarFinder.blobs[i].boundingRect);
+
+      }
 
     ofTranslate(0,img_height);
-    ofRect(roiColor);
+    ofRect(bb);
+
+
+    ofRect(face);
 
 
 
-    ofTranslate(img_width,0);
-
-    for (int i = 0; i < NB_MAX_FACES; ++i){
-        if (roiFaces[i].height >= 0. || roiFaces[i].width >= 0.){
-            glasses.draw(roiFaces[i].getX(), roiFaces[i].getY(), 2*roiFaces[i].getWidth()/3, roiFaces[i].getHeight()/2);
-            beard.draw(roiFaces[i].getX(), roiFaces[i].getY()+roiFaces[i].getHeight()/2, 2*roiFaces[i].getWidth()/3, roiFaces[i].getHeight()/2);
-
-        }
-    }
 
     // Patch correspondant à la couleur cible
-    ofTranslate(-img_width, 0);
     ofTranslate(8, 8);
     ofFill();
     ofSetColor(0);
     ofRect(-3, -3, 64+6, 64+6);
     ofSetColor(targetColor);
     ofRect(0, 0, 64, 64);
-
-
-
-
 }
-
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -229,7 +231,9 @@ void ofApp::mouseDragged(int x, int y, int button){
 void ofApp::mousePressed(int x, int y, int button){
     targetColor = img.getPixelsRef().getColor(x, y);
 
+
     targetColorHsv=rgbToHsv(targetColor);
+
     targetColorHsv.getHsb(hue,sat,bright);
 
 
@@ -249,7 +253,6 @@ void ofApp::windowResized(int w, int h){
 void ofApp::gotMessage(ofMessage msg){
 
 }
-
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
