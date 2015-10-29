@@ -33,9 +33,10 @@ void ofApp::setup(){
     roi = roiInit;
     roiUpdate=false;
 
-
     glasses.loadImage("glasses.png");
     beard.loadImage("beard.png");
+
+
 
 }
 
@@ -143,11 +144,13 @@ void ofApp::update(){
                ofxCvBlob blobTmp = haarFinder.blobs.at(0);
 
                face =blobTmp.boundingRect;
-               float x = face.getX()-(face.getX())/4;
-               float y = face.getY()-(face.getY())/4;
-               float w = face.getWidth()*1.5;
-               float h = face.getHeight()*1.5;
-               roi=ofRectangle(x,y,w,h);
+//               float x = face.getX()-(face.getX())/4;
+//               float y = face.getY()-(face.getY())/4;
+//               float w = face.getWidth()*1.5;
+//               float h = face.getHeight()*1.5;
+               face.scaleFromCenter(1.5);
+               //roi=ofRectangle(x,y,w,h);
+               roi=face;
                roiUpdate=true;
 
 
@@ -171,20 +174,21 @@ void ofApp::draw(){
     img.draw(0,img_height);
     contour.draw(0,img_height);
 
-
     for(int i = 0; i < haarFinder.blobs.size(); i++) {
-        ofRectangle rect(haarFinder.blobs[i].boundingRect);
-        glasses.draw(rect.getX(), rect.getY(),2*rect.getWidth()/3, rect.getHeight()/2);
-        beard.draw(rect.getX(), rect.getY()+rect.getHeight()/2,2*rect.getWidth()/3, rect.getHeight()/2);
          //ofRect( haarFinder.blobs[i].boundingRect);
-
+         ofRectangle rect(haarFinder.blobs[i].boundingRect);
+         //glasses.draw(rect.getX(), rect.getY(),2*rect.getWidth()/3, rect.getHeight()/2);
+         //glasses.resize();
+         glasses.draw(rect.getX(),rect.getY()+rect.getHeight()/4,rect.getWidth(),rect.getHeight()/3);
+         //beard.draw(rect.getX(), rect.getY()+rect.getHeight()/2,2*rect.getWidth()/3, rect.getHeight()/2);
+         beard.draw(rect.getX(), rect.getY()+rect.getHeight()/2,rect.getWidth(), 3*rect.getHeight()/4);
       }
 
     ofTranslate(0,img_height);
     ofRect(bb);
 
 
-    ofRect(face);
+    ofRect(roi);
 
 
 
@@ -201,15 +205,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-    /*if(key == OF_KEY_DOWN)
-    {
-          tolerance++;
-    }
 
-    if(key == OF_KEY_DOWN)
-    {
-          tolerance--;
-    }*/
 }
 
 //--------------------------------------------------------------
