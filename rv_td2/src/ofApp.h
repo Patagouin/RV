@@ -4,6 +4,9 @@
 #include "ofxCvHaarFinder.h"
 #include "ofxCvContourFinder.h"
 
+static const float HEIGHT = 240.0;
+static const float CAMERA_ANGLE = 56.0;
+
 class ofApp : public ofBaseApp{
 public:
     void setup();
@@ -20,7 +23,12 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
+    void computeDistance();
+
 private:
+
+    ofFile conf;
+
     ofColor rgbToHsv(ofColor crgb);
 
     ofVideoGrabber cam;
@@ -37,6 +45,19 @@ private:
     int tolerance;
     ofxCvGrayscaleImage grayImg;
     ofColor targetColorHsv;
+
+    ofxCvGrayscaleImage image;
+    ofRectangle roi;
+
+//    float width = -1.;
+//    float height = -1.;
+    bool roiUpdate;
+
+    ofRectangle roiInit;
+    ofRectangle face;
+
+    ofxCvBlob blobtest;
+
     ofxCvContourFinder contour;
     ofxCvBlob theBlob;
     ofRectangle bb;
@@ -44,8 +65,16 @@ private:
     ofImage glasses;
     ofImage beard;
 
-
-
     ofxCvHaarFinder haarFinder;
+
+    ofFile file;
+    float focal;
+
+    float sizeObject; // mm
+
+    int sizeObjectInProj; //pixel
+
+    double distance;
+
 
 };

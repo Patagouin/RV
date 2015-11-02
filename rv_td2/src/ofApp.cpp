@@ -1,17 +1,8 @@
 #include "ofApp.h"
+#include <iostream>
+#include <string>
 
 
-//ofImage image;
-ofxCvGrayscaleImage image;
-ofRectangle roi;
-float width = -1.;
-float height = -1.;
-bool roiUpdate;
-
-ofRectangle roiInit;
-ofRectangle face;
-
-ofxCvBlob blobtest;
 //--------------------------------------------------------------
 void ofApp::setup(){
     img_width = 640/2;
@@ -35,6 +26,32 @@ void ofApp::setup(){
 
     glasses.loadImage("glasses.png");
     beard.loadImage("beard.png");
+
+
+    file.open(ofToDataPath("out_camera_data.xml"), ofFile::ReadOnly);
+    ofBuffer buffer = file.readToBuffer(); // read to a buffer
+    ofXml data;
+    data.loadFromBuffer( buffer.getText() );
+
+    std::string camMat  = data.getValue("Camera_Matrix/data");
+    std::vector<string> mat = ofXml::tokenize(camMat, " ");
+
+    focal = atof(mat[1].c_str());
+
+    sizeObject = 75;
+
+    sizeObjectInProj = 1;
+
+//    std::vector<string>::const_iterator it = camera_matrix.begin();
+//    std::vector<string>::const_iterator end = camera_matrix.end();
+//    //for(; it != end; ++it){
+//    for(int i = 0; i < camera_matrix.size(); ++i){
+//        //FIXTHIS
+//        std::cerr << "camera_mat = " << camera_matrix[i] << std::endl;
+//        //m_CameraMatrix.push_back(stod(camera_matrix[i]));
+//    }
+
+
 
 
 
@@ -116,6 +133,10 @@ void ofApp::update(){
         }
 
         bb=theBlob.boundingRect;
+        if ( bb.getWidth() <= 0)
+            sizeObjectInProj = 1;
+        else
+            sizeObjectInProj = bb.getWidth();
 
 
         //partie 3 - detection de visage
@@ -188,7 +209,7 @@ void ofApp::draw(){
     ofRect(bb);
 
 
-    ofRect(roi);
+    //ofRect(roi);
 
 
 
@@ -200,7 +221,21 @@ void ofApp::draw(){
     ofRect(-3, -3, 64+6, 64+6);
     ofSetColor(targetColor);
     ofRect(0, 0, 64, 64);
+
+
+    computeDistance();
+
+    std::cout << "Distance = " << distance << std::endl;
+
+
 }
+
+void ofApp::computeDistance()
+{
+    float D = sizeObject * (HEIGHT/ sizeObjectInProj );
+    distance = (D/2.0)/atan(((CAMERA_ANGLE/180.0)* M_PI) /2.0);
+}
+
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -249,6 +284,7 @@ void ofApp::windowResized(int w, int h){
 void ofApp::gotMessage(ofMessage msg){
 
 }
+
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
