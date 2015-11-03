@@ -221,7 +221,7 @@ void ofApp::draw(){
 
 void ofApp::computeDistance()
 {
-    float D = sizeObject * (img_height/ sizeObjectInProj );
+    float D = (float)sizeObject * ((float)img_width/ (float)sizeObjectInProj );
     distance = (D/2.0)/atan(((CAMERA_ANGLE/180.0)* M_PI) /2.0);
 }
 

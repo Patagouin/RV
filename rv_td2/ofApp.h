@@ -8,7 +8,7 @@
 //#include <vrpn_Tracker.h>
 //#include <vrpn_Tracker_Fastrak.h>
 
-static const float CAMERA_ANGLE = 56.0;
+static const float CAMERA_ANGLE = 75.0;
 
 class ofApp : public ofBaseApp{
 public:
