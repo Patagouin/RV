@@ -1,7 +1,7 @@
 obj/linux64/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../libs/openFrameworks/ofMain.h \
  ../../../libs/openFrameworks/utils/ofConstants.h \
- ../../../libs/tess2/include/tesselator.h \
+ /opt/local/include/GL/glew.h ../../../libs/tess2/include/tesselator.h \
  ../../../libs/openFrameworks/utils/ofFileUtils.h \
  ../../../libs/poco/include/Poco/File.h \
  ../../../libs/poco/include/Poco/Foundation.h \
@@ -315,13 +315,22 @@ obj/linux64/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../libs/openFrameworks/video/ofVideoPlayer.h \
  ../../../libs/openFrameworks/video/ofGstVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
- ../../../libs/openFrameworks/3d/ofEasyCam.h
+ ../../../libs/openFrameworks/3d/ofEasyCam.h \
+ /opt/local/include/vrpn_Connection.h /opt/local/include/vrpn_Shared.h \
+ /opt/local/include/vrpn_Types.h /opt/local/include/vrpn_Configure.h \
+ /opt/local/include/vrpn_Tracker.h /opt/local/include/vrpn_BaseClass.h \
+ /opt/local/include/vrpn_Connection.h \
+ /opt/local/include/vrpn_Tracker_Fastrak.h \
+ /opt/local/include/vrpn_Tracker.h /opt/local/include/vrpn_Button.h \
+ /opt/local/include/vrpn_Serial.h /opt/local/include/vrpn_Analog.h
 
 src/ofApp.h:
 
 ../../../libs/openFrameworks/ofMain.h:
 
 ../../../libs/openFrameworks/utils/ofConstants.h:
+
+/opt/local/include/GL/glew.h:
 
 ../../../libs/tess2/include/tesselator.h:
 
@@ -986,3 +995,27 @@ src/ofApp.h:
 ../../../libs/openFrameworks/3d/ofCamera.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
+
+/opt/local/include/vrpn_Connection.h:
+
+/opt/local/include/vrpn_Shared.h:
+
+/opt/local/include/vrpn_Types.h:
+
+/opt/local/include/vrpn_Configure.h:
+
+/opt/local/include/vrpn_Tracker.h:
+
+/opt/local/include/vrpn_BaseClass.h:
+
+/opt/local/include/vrpn_Connection.h:
+
+/opt/local/include/vrpn_Tracker_Fastrak.h:
+
+/opt/local/include/vrpn_Tracker.h:
+
+/opt/local/include/vrpn_Button.h:
+
+/opt/local/include/vrpn_Serial.h:
+
+/opt/local/include/vrpn_Analog.h:

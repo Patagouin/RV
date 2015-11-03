@@ -42,15 +42,14 @@ void ofApp::setup(){
 
     sizeObjectInProj = 1;
 
-//    std::vector<string>::const_iterator it = camera_matrix.begin();
-//    std::vector<string>::const_iterator end = camera_matrix.end();
-//    //for(; it != end; ++it){
-//    for(int i = 0; i < camera_matrix.size(); ++i){
-//        //FIXTHIS
-//        std::cerr << "camera_mat = " << camera_matrix[i] << std::endl;
-//        //m_CameraMatrix.push_back(stod(camera_matrix[i]));
-//    }
+    int	bail_on_error = 1;
 
+    m_Connection = vrpn_create_server_connection();
+    m_Tracker = new vrpn_Tracker_Server("TrackPostIt", m_Connection);
+    if ( m_Tracker == NULL){
+        std::cerr << "Can't create new vrpn_Tracker_Server" << std::endl;
+        exit();
+    }
 
 
 
@@ -75,6 +74,7 @@ ofColor ofApp::rgbToHsv(ofColor crgb) {
 void ofApp::update(){
     cam.update();
     if (cam.isFrameNew()){
+
         img.setFromPixels(cam.getPixelsRef());
         img.mirror(false,true);
 
@@ -112,10 +112,10 @@ void ofApp::update(){
 
         grayImg.flagImageChanged();
 
-        //grayImg.erode();
-        //grayImg.dilate();
-        //grayImg.dilate();
-        //grayImg.erode();
+        grayImg.erode();
+        grayImg.dilate();
+        grayImg.dilate();
+        grayImg.erode();
 
 
         contour.findContours(grayImg,0,img_width*img_height,1,false);
@@ -141,22 +141,6 @@ void ofApp::update(){
 
         //partie 3 - detection de visage
 
-//        if (width < 0. && height < 0. && haarFinder.blobs.size() > 0){
-//            roi = haarFinder.blobs[0].boundingRect;
-//            width = 1.5 * roi.width;
-//            height = 1.5 * roi.height;
-//            roi.setWidth(width);
-//            roi.setHeight(height);
-
-//        }
-//        else{
-//            ofRectangle tmp;
-//            tmp = haarFinder.blobs[0].boundingRect;
-//            roi.setPosition(tmp.getPosition());
-
-//            haarFinder.findHaarObjects(image, roi);
-//        }
-
 
            haarFinder.findHaarObjects(image, roi);
 
@@ -165,12 +149,7 @@ void ofApp::update(){
                ofxCvBlob blobTmp = haarFinder.blobs.at(0);
 
                face =blobTmp.boundingRect;
-//               float x = face.getX()-(face.getX())/4;
-//               float y = face.getY()-(face.getY())/4;
-//               float w = face.getWidth()*1.5;
-//               float h = face.getHeight()*1.5;
                face.scaleFromCenter(1.5);
-               //roi=ofRectangle(x,y,w,h);
                roi=face;
                roiUpdate=true;
 
@@ -182,6 +161,10 @@ void ofApp::update(){
                    roi=roiInit;
                    roiUpdate=false;
                }
+
+       m_Tracker->mainloop();
+       // Send and receive all messages
+       m_Connection->mainloop();
 
 
     }
@@ -198,20 +181,24 @@ void ofApp::draw(){
     for(int i = 0; i < haarFinder.blobs.size(); i++) {
          //ofRect( haarFinder.blobs[i].boundingRect);
          ofRectangle rect(haarFinder.blobs[i].boundingRect);
-         //glasses.draw(rect.getX(), rect.getY(),2*rect.getWidth()/3, rect.getHeight()/2);
-         //glasses.resize();
          glasses.draw(rect.getX(),rect.getY()+rect.getHeight()/4,rect.getWidth(),rect.getHeight()/3);
-         //beard.draw(rect.getX(), rect.getY()+rect.getHeight()/2,2*rect.getWidth()/3, rect.getHeight()/2);
          beard.draw(rect.getX(), rect.getY()+rect.getHeight()/2,rect.getWidth(), 3*rect.getHeight()/4);
       }
+
+    if (bb.getHeight() > 5 && bb.getWidth() > 5){
+        vrpn_float64 pos[3] = {bb.getCenter().x, bb.getCenter().y, distance};
+        vrpn_float64 quat[4] = {0.,0.,0.,0.};
+        timeval t;
+        t.tv_sec = 1.0;
+        t.tv_usec = 0.0;
+        m_Tracker->report_pose(0, t, pos, quat);
+    }
 
     ofTranslate(0,img_height);
     ofRect(bb);
 
 
     //ofRect(roi);
-
-
 
 
     // Patch correspondant à la couleur cible
@@ -232,7 +219,7 @@ void ofApp::draw(){
 
 void ofApp::computeDistance()
 {
-    float D = sizeObject * (HEIGHT/ sizeObjectInProj );
+    float D = (float)sizeObject * ((float)img_width/ (float)sizeObjectInProj );
     distance = (D/2.0)/atan(((CAMERA_ANGLE/180.0)* M_PI) /2.0);
 }
 

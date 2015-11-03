@@ -33,7 +33,14 @@
 #   Like source folders in the PROJECT_ROOT, these paths are subject to 
 #   exlclusion via the PROJECT_EXLCUSIONS list.
 #
-#     (default) PROJECT_EXTERNAL_SOURCE_PATHS = (blank) 
+
+
+
+PROJECT_EXTERNAL_SOURCE_PATHS = /opt/local/include
+
+
+
+
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
@@ -68,6 +75,16 @@
 #	These flags will be sent to the linker when compiling the executable.
 #
 #		(default) PROJECT_LDFLAGS = -Wl,-rpath=./libs
+
+
+
+PROJECT_LDFLAGS = -L/opt/local/lib/ -lvrpn
+
+
+
+
+
+#
 #
 #   Note: Leave a leading space when adding list items with the += operator
 #
@@ -76,7 +93,7 @@
 # add a runtime path to search for those shared libraries, since they aren't 
 # incorporated directly into the final executable application binary.
 ################################################################################
-# PROJECT_LDFLAGS=-Wl,-rpath=./libs
+#PROJECT_LDFLAGS=-rpath=/opt/local/lib:/opt/local/lib
 
 ################################################################################
 # PROJECT DEFINES

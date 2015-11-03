@@ -4,8 +4,11 @@
 #include "ofxCvHaarFinder.h"
 #include "ofxCvContourFinder.h"
 
-static const float HEIGHT = 240.0;
-static const float CAMERA_ANGLE = 56.0;
+#include <vrpn_Connection.h>
+#include <vrpn_Tracker.h>
+#include <vrpn_Tracker_Fastrak.h>
+
+static const float CAMERA_ANGLE = 75.0;
 
 class ofApp : public ofBaseApp{
 public:
@@ -23,7 +26,10 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
+
     void computeDistance();
+
+
 
 private:
 
@@ -49,8 +55,7 @@ private:
     ofxCvGrayscaleImage image;
     ofRectangle roi;
 
-//    float width = -1.;
-//    float height = -1.;
+
     bool roiUpdate;
 
     ofRectangle roiInit;
@@ -71,10 +76,11 @@ private:
     float focal;
 
     float sizeObject; // mm
-
     int sizeObjectInProj; //pixel
 
     double distance;
 
+    vrpn_Connection* m_Connection;
+    vrpn_Tracker_Server* m_Tracker;
 
 };

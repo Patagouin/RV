@@ -1,6 +1,11 @@
 #pragma once
 
 #include "ofMain.h"
+#include <vrpn_Connection.h>
+#include <vrpn_Tracker.h>
+#include <vrpn_Tracker_Fastrak.h>
+
+
 
 class ofApp : public ofBaseApp{
 public:
@@ -25,6 +30,8 @@ protected:
     void drawScene();
     void setCamera(const ofVec3f &cameraPos);
 
+     static void handle_tracker(void *userdata, const vrpn_TRACKERCB t);
+
 private:
 
     ofVec2f screenResolution; // in pixels
@@ -48,5 +55,7 @@ private:
 
     ofLight dirLight;
     ofMaterial material;
+
+    vrpn_Tracker_Remote* m_TrackerRemote;
 
 };

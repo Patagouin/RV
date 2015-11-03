@@ -1,11 +1,11 @@
 #include "ofApp.h"
-
 //--------------------------------------------------------------
 void ofApp::setup(){
     glEnable(GL_DEPTH_TEST);
 
     screenResolution = ofVec2f(2560,1440);
-    screenSize = ofVec2f(600, 340);
+    screenSize = ofVec2f(600.0, 340.0);
+
 
     camPos = ofVec3f(0, 0, 500);
     halfEyeDist = 8;
@@ -31,16 +31,37 @@ void ofApp::setup(){
     tz = 0.f;
     sign = 1;
 
+    m_TrackerRemote = new vrpn_Tracker_Remote("TrackPostIt@localhost");
+    float data[3] = {camPos.x, camPos.y, camPos.z};
+    camPos.set(data[0], data[1], data[2]);
+
+    m_TrackerRemote->register_change_handler((void*)&camPos, handle_tracker);
+
 }
 
 
+void ofApp::handle_tracker(void *userdata, const vrpn_TRACKERCB t)
+{
+
+    ofVec3f *tmp = (ofVec3f*)userdata;
+    std::cout << t.pos[0] << "x " << t.pos[1] << "y "<< std::endl;
+
+
+    tmp->set(t.pos[0], t.pos[1], t.pos[2]);
+//    userdata = (void*)&ofVec3f(t.pos[0], t.pos[1], t.pos[2]);
+
+}
+
 //--------------------------------------------------------------
 void ofApp::update(){
+
     ry += 1.f;
     rx += 1.f;
     if (abs(tz) == 100)
         sign = -sign;
     tz = tz + sign;
+
+    m_TrackerRemote->mainloop();
 }
 
 //--------------------------------------------------------------
@@ -63,12 +84,16 @@ void ofApp::draw(){
 
 void ofApp::drawMono()
 {
+    //camPos.x = ((camPos[0] - 320.0)/2) / nearPlane;
+    //camPos.y = ((camPos[1]- 240.0)/2) / nearPlane;
     setCamera(camPos);
     drawScene();
 }
 
 void ofApp::drawLeft()
 {
+    camPos.x = ((camPos[0] - 320.0)/2) / nearPlane;
+    camPos.y = ((camPos[1]- 240.0)/2) / nearPlane;
     camPosLeft = ofVec3f(camPos.x - 5, camPos.y, camPos.z);
 
     setCamera(camPosLeft);
@@ -78,6 +103,9 @@ void ofApp::drawLeft()
 
 void ofApp::drawRight()
 {
+    camPos.x = ((camPos[0] - 320.0)/2) / nearPlane;
+    camPos.y = ((camPos[1]- 240.0)/2) / nearPlane;
+
     camPosRight = ofVec3f(camPos.x + 5, camPos.y, camPos.z);
 
     setCamera(camPosRight);
@@ -111,6 +139,10 @@ void ofApp::drawScene()
 {
     ofEnableLighting();
     dirLight.enable();
+
+    //camPos.x = ((camPos[0] - 320.0)/2) / nearPlane;
+
+    //camPos.y = ((camPos[1]- 240.0)/2) / nearPlane;
 
     // Draw a rotating cube
     ofPushMatrix();
@@ -194,6 +226,10 @@ void ofApp::drawScene()
                    screenSize.x/2.f, j, -i * lineDist - lineDist);
         }
     }
+
+
+
+
 }
 
 //--------------------------------------------------------------
@@ -207,8 +243,8 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-    camPos.x = (x - screenResolution.x/2)/nearPlane;
-    camPos.y = (y - screenResolution.y/2)/nearPlane;
+    //camPos.x = (x - screenResolution.x/2)/nearPlane;
+    //camPos.y = (y - screenResolution.y/2)/nearPlane;
 }
 
 //--------------------------------------------------------------
@@ -237,6 +273,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
